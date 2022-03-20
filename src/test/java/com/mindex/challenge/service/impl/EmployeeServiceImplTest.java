@@ -1,6 +1,7 @@
 package com.mindex.challenge.service.impl;
 
 import com.mindex.challenge.data.Employee;
+import com.mindex.challenge.data.ReportingStructure;
 import com.mindex.challenge.service.EmployeeService;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,9 +25,7 @@ public class EmployeeServiceImplTest {
 
     private String employeeUrl;
     private String employeeIdUrl;
-
-    @Autowired
-    private EmployeeService employeeService;
+    private String reportingStructureUrl;
 
     @LocalServerPort
     private int port;
@@ -38,6 +37,8 @@ public class EmployeeServiceImplTest {
     public void setup() {
         employeeUrl = "http://localhost:" + port + "/employee";
         employeeIdUrl = "http://localhost:" + port + "/employee/{id}";
+        reportingStructureUrl = "http://localhost:" + port + "/getNumberOfReportsByEmployeeId/{id}";
+
     }
 
     @Test
@@ -75,6 +76,13 @@ public class EmployeeServiceImplTest {
                         readEmployee.getEmployeeId()).getBody();
 
         assertEmployeeEquivalence(readEmployee, updatedEmployee);
+    }
+
+    @Test
+    public void testReportingStructure() {
+        Employee readEmployee = restTemplate.getForEntity(employeeIdUrl, Employee.class, "16a596ae-edd3-4847-99fe-c4518e82c86f").getBody();
+        ReportingStructure rs = restTemplate.getForEntity(reportingStructureUrl, ReportingStructure.class,readEmployee.getEmployeeId()).getBody();
+        assertEquals(rs.getNumberOfReports(), 4);
     }
 
     private static void assertEmployeeEquivalence(Employee expected, Employee actual) {
